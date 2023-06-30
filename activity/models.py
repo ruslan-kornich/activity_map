@@ -5,9 +5,9 @@ from django.db import models
 
 class Marker(models.Model):
     ACTIVITY_CHOICES = [
-        ('Раздача хлеба', 'Раздача хлеба'),
-        ('Раздача воды', 'Раздача воды'),
-        ('Раздача еды', 'Раздача еды'),
+        ('Bread Distribution', 'Bread Distribution'),
+        ('Water distribution', 'Water distribution'),
+        ('Food Distribution', 'Food Distribution'),
 
     ]
 
@@ -15,7 +15,7 @@ class Marker(models.Model):
     quantity = models.IntegerField()
     date = models.DateField()
     place = models.CharField(max_length=100)
-    location = models.JSONField()  # Предполагается, что location - это список [широта, долгота]
+    location = models.JSONField()  # It is assumed that location is a list of [latitude, longitude]
 
     def __str__(self):
         return self.place

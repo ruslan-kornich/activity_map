@@ -9,17 +9,17 @@ from decimal import Decimal
 
 
 def home(request):
-    # Получение параметров фильтров
+    # Get filter parameters
     activity_filter = request.GET.get('activity')
     date_filter = request.GET.get('date')
 
-    # Фильтрация маркеров
+    # Marker filtering
     filtered_markers = filter_markers(activity_filter, date_filter)
 
-    # Создание карты с отфильтрованными маркерами
+    # Creating a map with filtered markers
     map_object = create_map(filtered_markers)
 
-    # Сохранение карты в HTML-строку
+    # Saving the map to an HTML string
     map_html = map_object.get_root().render()
 
     return render(request, 'activity/home.html', {'map_html': map_html})
