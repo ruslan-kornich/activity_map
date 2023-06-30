@@ -2,6 +2,7 @@ from typing import List
 
 from .models import Marker
 import folium
+import requests
 
 
 def filter_markers(activity_filter=None, date_filter=None):
@@ -37,6 +38,31 @@ def create_popup_content(marker_data):
         """
 
 
+def add_geojson_layer(m, url, layer_name):
+    # Загружаем GeoJSON данные
+    raw_data = requests.get(url).json()
+
+    # Оставляем только полигоны
+    geojson_data = {
+        'type': 'FeatureCollection',
+        'features': [feature for feature in raw_data['features'] if feature['geometry']['type'] != 'Point']
+    }
+
+    # Добавляем данные на карту
+    geojson_layer = folium.GeoJson(
+        data=geojson_data,
+        name=layer_name,
+        style_function=lambda x: {
+            'fillColor': x['properties']['fill'],
+            'color': x['properties']['stroke'],
+            'weight': x['properties']['stroke-width'],
+            'fillOpacity': x['properties']['fill-opacity']
+        }
+    )
+
+    geojson_layer.add_to(m)
+
+
 def create_map(markers):
     m = folium.Map(location=[48.5, 35], zoom_start=10,
                    tiles='https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
@@ -57,9 +83,9 @@ def create_map(markers):
 
         # Используем разные иконки в зависимости от активности
         if activity == 'Bread Distribution':
-            icon = folium.Icon(color='blue', icon="bread-slice", prefix='fa')
+            icon = folium.Icon(color='green', icon="bread-slice", prefix='fa')
         elif activity == 'Water distribution':
-            icon = folium.Icon(color='green', icon="tint", prefix='fa')
+            icon = folium.Icon(color='blue', icon="tint", prefix='fa')
         elif activity == 'Food Distribution':
             icon = folium.Icon(color='orange', icon="utensils", prefix='fa')
         else:
@@ -71,12 +97,11 @@ def create_map(markers):
             icon=icon
         ).add_to(activity_layers[activity])
 
+    # Добавляем слой GeoJSON
+    add_geojson_layer(m, 'https://deepstatemap.live/api/history/1687169321/geojson', 'My GeoJSON Layer')
+
     # Добавляем управление слоями в интерфейс карты
     folium.LayerControl().add_to(m)
+
     return m
-
-
-
-
-
 
