@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="mapid" style="width: 100vw; height: 100vh;">
+    {{ map_html | safe }} <!-- вставка карты Folium -->
+</div>
+{% endblock content %}
