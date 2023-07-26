@@ -1,8 +1,8 @@
-from typing import List
-
 from .models import Marker
 import folium
 import requests
+
+
 
 
 def filter_markers(activity_filter=None, date_filter=None):
@@ -17,9 +17,6 @@ def filter_markers(activity_filter=None, date_filter=None):
         markers = markers.filter(date=date_filter)
 
     return markers
-
-
-from folium import FeatureGroup, LayerControl
 
 
 def create_popup_content(marker_data):
@@ -83,11 +80,17 @@ def create_map(markers):
 
         # Используем разные иконки в зависимости от активности
         if activity == 'Bread Distribution':
-            icon = folium.Icon(color='green', icon="bread-slice", prefix='fa')
+            icon = folium.Icon(color='orange', icon="bread-slice", prefix='fa')
         elif activity == 'Water distribution':
             icon = folium.Icon(color='blue', icon="tint", prefix='fa')
         elif activity == 'Food Distribution':
-            icon = folium.Icon(color='orange', icon="utensils", prefix='fa')
+            icon = folium.Icon(color='green', icon="utensils", prefix='fa')
+        elif activity == 'Non-Food Items (NFI)':
+            icon = folium.Icon(color='purple', icon="cube", prefix='fa')
+        elif activity == 'Evacuation':
+            icon = folium.Icon(color='darkred', icon="truck-fast", prefix='fa')
+        elif activity == 'Restoration of a damaged home':
+            icon = folium.Icon(color='green', icon="tools", prefix='fa')
         else:
             icon = folium.Icon(color='gray', icon="flag", prefix='fa')  # fallback icon
 
@@ -104,4 +107,3 @@ def create_map(markers):
     folium.LayerControl().add_to(m)
 
     return m
-

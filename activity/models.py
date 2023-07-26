@@ -8,6 +8,10 @@ class Marker(models.Model):
         ('Bread Distribution', 'Bread Distribution'),
         ('Water distribution', 'Water distribution'),
         ('Food Distribution', 'Food Distribution'),
+        ('Non-Food Items (NFI)', 'Non-Food Items (NFI)'),
+        ('Evacuation', 'Evacuation'),
+        ('Restoration of a damaged home', 'Restoration of a damaged home')
+
 
     ]
 
