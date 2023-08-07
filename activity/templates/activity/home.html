@@ -11,36 +11,31 @@
     <script src="{% static 'markers/leaflet.awesome-markers.js' %}"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
 
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-
-        #map {
-            flex: 1;
-            height: 100vh;
-        }
-
-        #marker-info {
-            flex: 0 0 15%;
-            max-width: 15%;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            overflow-y: auto;
-        }
-    </style>
 </head>
 <body>
+<!-- Основной блок с картой (занимает 85% ширины страницы) -->
 <div id="map"></div>
-<div id="marker-info">
-    <h2>Marker Info</h2>
-    <ul id="marker-list">
-        <!-- Placeholder for marker information -->
-    </ul>
+
+<!-- Инфо блок -->
+<div id="info-container">
+    <!-- Marker Info (занимает 70% высоты инфо блока) -->
+    <div id="marker-info">
+        <h2>Marker Info</h2>
+        <ul id="marker-list">
+            <!-- Placeholder for marker information -->
+        </ul>
+    </div>
+
+    <!-- Filter by Activity (занимает 30% высоты инфо блока) -->
+    <div id="activity-filter">
+        <h3>Filter by Activity:</h3>
+        <div id="activity-checkboxes">
+            <!-- Чекбоксы будут добавлены динамически при загрузке данных -->
+        </div>
+    </div>
 </div>
 
 <script>
@@ -57,7 +52,47 @@
             // Создаем объект для хранения информации о маркерах с одинаковым местоположением и активностью
             var markerDataByLocationAndActivity = {};
 
-            // Обрабатываем каждую запись из полученных данных
+            // Получаем все уникальные активности для фильтрации
+            var uniqueActivities = new Set(data.map(marker => marker.activity.name));
+
+            // Добавляем чекбоксы для выбора активностей в фильтре
+            var activityCheckboxes = document.getElementById('activity-checkboxes');
+            uniqueActivities.forEach(activity => {
+                var checkboxContainer = document.createElement('label');
+                checkboxContainer.innerHTML = `<input type="checkbox" value="${activity}" checked> ${activity}<br>`;
+                activityCheckboxes.appendChild(checkboxContainer);
+            });
+
+            // Обработчик события изменения выбранных активностей в фильтре
+            var checkboxes = document.querySelectorAll('#activity-checkboxes input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    var selectedActivities = Array.from(checkboxes)
+                        .filter(checkbox => checkbox.checked)
+                        .map(checkbox => checkbox.value);
+
+                    // Перебираем все точки на карте и устанавливаем видимость в зависимости от выбранных активностей
+                    data.forEach(marker => {
+                        var lat = marker.location[0];
+                        var lon = marker.location[1];
+                        var activity = marker.activity.name;
+                        var isVisible = selectedActivities.includes(activity);
+                        var key = lat.toString() + lon.toString() + activity;
+
+                        map.eachLayer(layer => {
+                            if (layer instanceof L.Marker && layer.options.icon.options.markerColor === marker.activity.color) {
+                                if (isVisible) {
+                                    layer.setOpacity(1);
+                                } else {
+                                    layer.setOpacity(0);
+                                }
+                            }
+                        });
+                    });
+                });
+            });
+
+            // Обрабатываем каждую запись из полученных данных и добавляем маркеры на карту
             data.forEach(marker => {
                 var lat = marker.location[0];
                 var lon = marker.location[1];
@@ -68,6 +103,29 @@
                 var iconClass = marker.activity.icon; // Иконка для активности из базы данных
                 var color = marker.activity.color; // Цвет для активности из базы данных
 
+                // Создаем иконку с использованием AwesomeMarkers
+                var icon = L.AwesomeMarkers.icon({
+                    icon: iconClass, // Иконка для активности из базы данных
+                    prefix: 'fa', // Префикс класса иконок Font Awesome
+                    markerColor: color // Цвет маркера для активности из базы данных
+                });
+
+                // Добавляем маркер на карту и обработчик клика
+                var markerPopup = L.popup().setContent(`<b>${place}</b><br>Activity: ${activity}<br>Quantity: ${quantity}<br>Date: ${date}`);
+                L.marker([lat, lon], { icon: icon }).addTo(map).bindPopup(markerPopup).on('click', function() {
+                    // Отображаем информацию о маркерах в боковом меню
+                    var markerInfoList = document.getElementById('marker-list');
+                    markerInfoList.innerHTML = ''; // Очищаем список
+
+                    // Получаем все записи с данным ключом и добавляем их в список
+                    var markerDataList = markerDataByLocationAndActivity[key];
+                    markerDataList.forEach(markerData => {
+                        var listItem = document.createElement('li');
+                        listItem.innerHTML = `<b>${markerData.place}</b><br>Activity: ${markerData.activity}<br>Quantity: ${markerData.quantity}<br>Date: ${markerData.date}`;
+                        markerInfoList.appendChild(listItem);
+                    });
+                });
+
                 // Формируем уникальный ключ на основе местоположения и активности
                 var key = lat.toString() + lon.toString() + activity;
 
@@ -77,9 +135,7 @@
                         activity: activity,
                         quantity: quantity,
                         date: date,
-                        place: place,
-                        iconClass: iconClass, // Передаем иконку в маркер
-                        color: color // Передаем цвет в маркер
+                        place: place
                     });
                 } else {
                     // Если ключа еще нет, создаем новую запись в объекте
@@ -87,40 +143,12 @@
                         activity: activity,
                         quantity: quantity,
                         date: date,
-                        place: place,
-                        iconClass: iconClass, // Передаем иконку в маркер
-                        color: color // Передаем цвет в маркер
+                        place: place
                     }];
-
-                    // Создаем иконку с использованием AwesomeMarkers
-                    var icon = L.AwesomeMarkers.icon({
-                        icon: iconClass, // Иконка для активности из базы данных
-                        prefix: 'fa', // Префикс класса иконок Font Awesome
-                        markerColor: color // Цвет маркера для активности из базы данных
-                    });
-
-                    // Добавляем маркер на карту и обработчик клика
-                    var markerPopup = L.popup().setContent(`<b>${place}</b><br>Activity: ${activity}<br>Quantity: ${quantity}<br>Date: ${date}`);
-                    L.marker([lat, lon], { icon: icon }).addTo(map).bindPopup(markerPopup).on('click', function() {
-                        // Отображаем информацию о маркерах в боковом меню
-                        var markerInfoList = document.getElementById('marker-list');
-                        markerInfoList.innerHTML = ''; // Очищаем список
-
-                        // Получаем все записи с данным ключом и добавляем их в список
-                        var markerDataList = markerDataByLocationAndActivity[key];
-                        markerDataList.forEach(markerData => {
-                            var listItem = document.createElement('li');
-                            listItem.innerHTML = `<b>${markerData.place}</b><br>Activity: ${markerData.activity}<br>Quantity: ${markerData.quantity}<br>Date: ${markerData.date}`;
-                            markerInfoList.appendChild(listItem);
-                        });
-                    });
                 }
             });
         });
 </script>
-
-
-
 
 </body>
 </html>
