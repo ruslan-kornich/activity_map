@@ -61,12 +61,12 @@
             data.forEach(marker => {
                 var lat = marker.location[0];
                 var lon = marker.location[1];
-                var activity = marker.activity;
+                var activity = marker.activity.name;
                 var quantity = marker.quantity;
                 var date = marker.date;
                 var place = marker.place;
-                var iconClass = marker.icon; // Иконка для активности из базы данных
-                var color = marker.color; // Цвет для активности из базы данных
+                var iconClass = marker.activity.icon; // Иконка для активности из базы данных
+                var color = marker.activity.color; // Цвет для активности из базы данных
 
                 // Формируем уникальный ключ на основе местоположения и активности
                 var key = lat.toString() + lon.toString() + activity;
@@ -77,7 +77,9 @@
                         activity: activity,
                         quantity: quantity,
                         date: date,
-                        place: place
+                        place: place,
+                        iconClass: iconClass, // Передаем иконку в маркер
+                        color: color // Передаем цвет в маркер
                     });
                 } else {
                     // Если ключа еще нет, создаем новую запись в объекте
@@ -85,7 +87,9 @@
                         activity: activity,
                         quantity: quantity,
                         date: date,
-                        place: place
+                        place: place,
+                        iconClass: iconClass, // Передаем иконку в маркер
+                        color: color // Передаем цвет в маркер
                     }];
 
                     // Создаем иконку с использованием AwesomeMarkers
