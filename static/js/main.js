@@ -6,27 +6,31 @@ const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
 });
 
-
-
 const map = L.map('map', {
     center: [48.459801, 35.009273],
     zoom: 11,
-    layers: [osmLayer],
+    layers: [osmLayer], // OSM layer will be selected by default
     minZoom: 6,
     maxZoom: 19,
+    zoomControl: false // Disable standard proximity/remote buttons
 });
+
+L.control.zoom({
+     position: 'bottomright'
+}).addTo(map);
+
 const baseLayers = {
     "OpenStreetMap": osmLayer,
     "Carto Light": cartoLayer
 };
 
+// Add a layer toggle controller. By default, it will be in the upper right corner.
 L.control.layers(baseLayers).addTo(map);
-
 
 
 let currentMarkers = [];
 
-// Загрузка видимых маркеров и активностей
+// Load visible markers and activities
 function loadVisibleMarkers() {
     const bounds = map.getBounds();
     const minLat = bounds.getSouth();
@@ -151,6 +155,7 @@ function loadMarkersBasedOnFilters() {
 map.on('moveend', function() {
     loadMarkersBasedOnFilters();
     updateMarkers(); // update markers based on the current state of filters
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     const savedSelectedActivities = localStorage.getItem('selectedActivities');
@@ -162,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             checkbox.checked = selectedActivities.includes(checkbox.value);
         });
 
-        loadVisibleMarkers(); // initial loading of markers and activities
+        loadVisibleMarkers(); // initial loading of tokens and activities
         updateMarkers(); // apply the saved filters
+    }, 0);
 });

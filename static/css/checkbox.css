@@ -54,6 +54,6 @@ input:checked + .slider:before {
     flex-wrap: wrap;
     gap: 10px;
     align-items: left;
-    justify-content: flex-start;
+    justify-content: flex-start; /* Added this property */
 }
 
