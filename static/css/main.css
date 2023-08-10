@@ -2,30 +2,29 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
-    height: 100vh; /* Занимаем всю высоту окна браузера */
+    height: 100vh;
 }
 
 #map {
     flex: 1;
-    height: 100%; /* Занимаем всю высоту основного блока */
-}
+    height: 100%;
 
 #info-container {
     flex: 0 0 15%;
-    width: 15%; /* Ширина инфо блока (15% от ширины страницы) */
+    width: 15%;
     display: flex;
     flex-direction: column;
 }
 
 #marker-info {
-    flex: 0 0 70%;
+    flex: 0 0 60%;
     background-color: rgba(255, 255, 255, 0.8);
     padding: 10px;
     overflow-y: auto;
 }
 
 #activity-filter {
-    flex: 0 0 30%;
+    flex: 0 0 40%;
     background-color: rgba(255, 255, 255, 0.8);
     padding: 10px;
     display: flex;

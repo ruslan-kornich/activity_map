@@ -5,4 +5,4 @@ from .models import Point
 class PointForm(forms.ModelForm):
     class Meta:
         model = Point
-        fields = ['latitude', 'longitude', 'comment']
+        fields = ["latitude", "longitude", "comment"]

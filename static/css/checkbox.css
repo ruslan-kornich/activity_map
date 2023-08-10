@@ -1,0 +1,59 @@
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.switch input {
+  opacity: 0;
+  position: absolute;
+}
+
+.slider {
+  cursor: pointer;
+  background-color: #ccc;
+  transition: .4s;
+  height: 27px;
+  width: 48px;
+  position: relative;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 21px;
+  width: 21px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #4CAF50;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #4CAF50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(21px);
+}
+
+.slider.round {
+  border-radius: 27px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+#activity-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: left;
+    justify-content: flex-start;
+}
+
