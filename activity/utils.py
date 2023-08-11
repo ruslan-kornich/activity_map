@@ -1,138 +1,40 @@
-from .models import Marker
-import folium
-import requests
+import math
+from collections import defaultdict
+import copy
+
+OFFSET_STEP = 0.0003
 
 
-def filter_markers(activity_filter=None, date_filter=None):
-    # Получаем все объекты Marker из базы данных
-    markers = Marker.objects.all()
+def group_markers_by_coordinates_and_activity(markers):
+    unique_markers = {}  # Словарь для уникальных маркеров
 
-    # Если переданы фильтры, применяем их
-    if activity_filter is not None:
-        markers = markers.filter(activity=activity_filter)
+    for marker in markers:
+        key = (marker.location.x, marker.location.y, marker.activity.name)
+        unique_markers[
+            key
+        ] = marker  # Этот шаг гарантирует, что маркеры с одинаковыми координатами и активностью будут уникальными
 
-    if date_filter is not None:
-        markers = markers.filter(date=date_filter)
-
-    return markers
+    return list(unique_markers.values())
 
 
-def create_popup_content(marker_data_list):
-    """
-    Function to create the HTML content of the popup for a marker.
-    """
-    last_marker_data = marker_data_list[
-        -1
-    ]  # Берем информацию только из последней записи
-    popup_content = f"""
-        <style> .leaflet-popup-content-wrapper {{width:300px; }} </style>
-        <table style="width:100%;">
-            <tr><th colspan="2" style="text-align:center;">{last_marker_data['place']}</th></tr>
-            <tr><td style="text-align:left;"><b>Activity:</b></td><td style="text-align:left;">{last_marker_data['activity']}</td></tr>
-            <tr><td style="text-align:left;"><b>Quantity:</b></td><td style="text-align:left;">{last_marker_data['quantity']}</td></tr>
-            <tr><td style="text-align:left;"><b>Date:</b></td><td style="text-align:left;">{last_marker_data['date']}</td></tr>
-            <tr><td style="text-align:left;"><b>Place:</b></td><td style="text-align:left;">{last_marker_data['place']}</td></tr>
-        </table>
-        """
+def adjust_markers_based_on_count(unique_markers):
+    adjusted_markers = []
+    num_markers = len(unique_markers)
+    for idx, marker in enumerate(unique_markers):
+        new_marker = copy.deepcopy(marker)
 
-    return popup_content
+        # Вычислите угол для текущего маркера на основе его индекса и количества маркеров
+        angle = 2 * math.pi * idx / num_markers
 
+        # Определите радиус для маркера
+        radius = OFFSET_STEP * num_markers * 0.5 / math.pi
 
-def add_geojson_layer(m, url, layer_name):
-    # Загружаем GeoJSON данные
-    raw_data = requests.get(url).json()
+        # Вычислите новые координаты на основе угла и радиуса
+        new_x = marker.location.x + radius * math.cos(angle)
+        new_y = marker.location.y + radius * math.sin(angle)
 
-    # Оставляем только полигоны
-    geojson_data = {
-        "type": "FeatureCollection",
-        "features": [
-            feature
-            for feature in raw_data["features"]
-            if feature["geometry"]["type"] != "Point"
-        ],
-    }
+        new_marker.location.x = new_x
+        new_marker.location.y = new_y
 
-    # Добавляем данные на карту
-    geojson_layer = folium.GeoJson(
-        data=geojson_data,
-        name=layer_name,
-        style_function=lambda x: {
-            "fillColor": x["properties"]["fill"],
-            "color": x["properties"]["stroke"],
-            "weight": x["properties"]["stroke-width"],
-            "fillOpacity": x["properties"]["fill-opacity"],
-        },
-    )
-
-    geojson_layer.add_to(m)
-
-
-import folium
-import requests
-
-# ... (ваш остальной код)
-
-
-def create_map(markers):
-    m = folium.Map(
-        location=[48.5, 35],
-        zoom_start=10,
-        tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-        attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    )
-
-    activity_layers = {}
-    marker_info_list = []
-
-    # Создаем слой для каждого вида активности
-    for activity in Marker.ACTIVITY_CHOICES:
-        activity_layers[activity[0]] = folium.FeatureGroup(name=activity[0])
-        m.add_child(activity_layers[activity[0]])
-
-    # Группируем данные маркеров по местоположению
-    for marker_data in markers.values():
-        location = tuple(
-            marker_data["location"]
-        )  # Извлекаем широту и долготу из списка
-        activity = marker_data["activity"]
-
-        # Используем разные иконки в зависимости от активности
-        if activity == "Bread Distribution":
-            icon = folium.Icon(color="orange", icon="bread-slice", prefix="fa")
-        # ... (остальные варианты иконок)
-
-        # Создаем попап для каждого маркера
-        popup_content = (
-            f"<b>Activity:</b> {activity}<br>"
-            f"<b>Quantity:</b> {marker_data['quantity']}<br>"
-            f"<b>Date:</b> {marker_data['date']}<br>"
-            f"<b>Place:</b> {marker_data['place']}"
-        )
-
-        # Добавляем маркер на соответствующий слой
-        folium.Marker(location=location, popup=popup_content, icon=icon).add_to(
-            activity_layers[activity]
-        )
-
-        # Добавляем информацию о маркере в список для бокового меню
-        marker_info_list.append(
-            {
-                "location": location,
-                "activity": activity,
-                "quantity": marker_data["quantity"],
-                "date": marker_data["date"],
-                "place": marker_data["place"],
-            }
-        )
-
-    # Добавляем слой GeoJSON
-    add_geojson_layer(
-        m,
-        "https://deepstatemap.live/api/history/1687169321/geojson",
-        "My GeoJSON Layer",
-    )
-
-    # Добавляем управление слоями в интерфейс карты
-    folium.LayerControl().add_to(m)
-
-    return m, marker_info_list
+        adjusted_markers.append(new_marker)
+    return adjusted_markers

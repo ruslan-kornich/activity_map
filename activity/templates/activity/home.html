@@ -5,42 +5,68 @@
     <title>Activity Map</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="{% static 'markers/leaflet.awesome-markers.css' %}">
-    <script src="{% static 'markers/leaflet.awesome-markers.js' %}"></script>
 
+    <!-- Third-party CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.0/MarkerCluster.css"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.0/MarkerCluster.Default.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Local CSS -->
+    <link rel="stylesheet" href="{% static 'markers/leaflet.awesome-markers.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/checkbox.css' %}">
-
-
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
 </head>
 <body>
-<!-- Main block with map (occupies 85% of the page width) -->
-<div id="map"></div>
-
-<!-- Инфо блок -->
-<div id="info-container">
-    <!-- Marker Info (takes up 70% of the height of the info block) -->
-    <div id="marker-info">
-        <h2>Marker Info</h2>
-        <ul id="marker-list">
-            <!-- Placeholder for marker information -->
-        </ul>
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="navbar-content">
+        <!-- Add your navigation links and content here -->
     </div>
+</nav>
 
-    <!-- Filter by Activity (takes up 30% of the height of the info block) -->
-    <div id="activity-filter">
-        <h3>Filter by Activity:</h3>
-        <div id="activity-checkboxes">
-            <!-- Checkboxes will be added dynamically when the data is loaded -->
+<!-- Main container -->
+<div class="main-container">
+    <!-- Main block with map (occupies 85% of the page width) -->
+    <div id="map"></div>
+
+    <!-- Инфо блок -->
+    <div id="info-container">
+        <!-- Marker Info (takes up 70% of the height of the info block) -->
+        <div id="marker-info">
+            <h2>Marker Info</h2>
+            <ul id="marker-list">
+                <!-- Placeholder for marker information -->
+            </ul>
+        </div>
+
+        <!-- Filter by Activity (takes up 30% of the height of the info block) -->
+        <div id="activity-filter">
+            <h3>Filter by Activity:</h3>
+            <div id="activity-checkboxes">
+                <!-- Checkboxes will be added dynamically when the data is loaded -->
+            </div>
         </div>
     </div>
 </div>
 
-<script src="{% static 'js/main.js' %}"></script>
+<!-- Footer -->
+
+<!-- Third-party JS -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.0/leaflet.markercluster.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<!-- Local JS -->
+<script src="{% static 'markers/leaflet.awesome-markers.js' %}"></script>
+
+
+<script type="module" src="{% static 'js/main.js' %}"></script>
 <script src="{% static 'js/checkbox.js' %}"></script>
+
 
 
 </body>

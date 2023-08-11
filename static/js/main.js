@@ -1,7 +1,3 @@
-const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-});
-
 const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
 });
@@ -9,9 +5,9 @@ const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/
 const map = L.map('map', {
     center: [48.459801, 35.009273],
     zoom: 11,
-    layers: [osmLayer], // OSM layer will be selected by default
-    minZoom: 6,
-    maxZoom: 19,
+    layers: [cartoLayer], // Only the CARTO layer
+    minZoom: 7,
+    maxZoom: 18,
     zoomControl: false // Disable standard proximity/remote buttons
 });
 
@@ -19,13 +15,6 @@ L.control.zoom({
      position: 'bottomright'
 }).addTo(map);
 
-const baseLayers = {
-    "OpenStreetMap": osmLayer,
-    "Carto Light": cartoLayer
-};
-
-// Add a layer toggle controller. By default, it will be in the upper right corner.
-L.control.layers(baseLayers).addTo(map);
 
 
 let currentMarkers = [];
@@ -87,10 +76,11 @@ function fetchMarkers(minLat, maxLat, minLng, maxLng) {
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            // Clear current markers and add new ones
+            // Clear current markers
             currentMarkers.forEach(item => item.marker.remove());
             currentMarkers = [];
 
+            // Process each marker data without adding to map yet
             data.forEach(markerData => {
                 const latLng = [markerData.lat, markerData.lng];
                 const icon = L.AwesomeMarkers.icon({
@@ -98,7 +88,9 @@ function fetchMarkers(minLat, maxLat, minLng, maxLng) {
                     prefix: 'fa',
                     markerColor: markerData.activity.color
                 });
-                const marker = L.marker(latLng, { icon: icon }).addTo(map);
+                const marker = L.marker(latLng, { icon: icon });
+                marker.activityName = markerData.activity.name; // Add activity name
+                marker.placeName = markerData.place; // Add the name of the place
                 const popupContent = `
                     <h4>${markerData.activity.name}</h4>
                     <p>Quantity: ${markerData.quantity}</p>
@@ -109,10 +101,13 @@ function fetchMarkers(minLat, maxLat, minLng, maxLng) {
                 currentMarkers.push({ marker: marker, activityId: markerData.activity.id });
             });
 
+            // Now, add all markers to the map
+            currentMarkers.forEach(item => item.marker.addTo(map));
             updateMarkers();
         })
         .catch(error => console.error("There was a problem fetching the markers:", error));
 }
+
 
 function getSelectedActivities() {
     return Array.from(document.querySelectorAll('#activity-checkboxes input:checked')).map(checkbox => checkbox.value);
@@ -140,7 +135,41 @@ function updateMarkers() {
 
 function onMarkerClick(e) {
     e.target.openPopup();
+
+    const activityName = e.target.activityName;
+    const placeName = e.target.placeName;
+
+    // Reset the previous content of the list
+    $('#marker-list').empty();
+
+    // Add new content
+    $('#marker-list').append(`<li>Activity: ${activityName}</li>`);
+    $('#marker-list').append(`<li>Place: ${placeName}</li>`);
+
+    fetchActivitiesForPlace(placeName, activityName);
 }
+
+function fetchActivitiesForPlace(placeName, activityName) {
+    const url = `/api/activities_for_place/${placeName}/${activityName}/`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            // Reset the previous content of the list
+            $('#marker-list').empty();
+
+            // Iterate over all items received from API
+            data.forEach(item => {
+                $('#marker-list').append(`<li><strong>Activity:</strong> ${item.activity.name}</li>`);
+                $('#marker-list').append(`<li><strong>Quantity:</strong> ${item.quantity}</li>`);
+                $('#marker-list').append(`<li><strong>Place:</strong> ${item.place}</li>`);
+                $('#marker-list').append(`<li><strong>Date:</strong> ${item.date}</li>`);
+                $('#marker-list').append('<hr>');  // Separator between records
+            });
+        })
+        .catch(error => console.error("There was a problem fetching activities for place:", error));
+}
+
 
 function loadMarkersBasedOnFilters() {
     const bounds = map.getBounds();

@@ -1,29 +1,61 @@
-body {
+/* Reset styles */
+* {
     margin: 0;
     padding: 0;
-    display: flex;
-    height: 100vh; /* Take up the entire height of the browser window */
+    box-sizing: border-box;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+}
+
+/* Navbar */
+.navbar {
+    background-color: black;
+    color: white;
+    padding: 25px;
+    text-align: center;
+}
+
+.navbar h1 {
+    margin: 0;
+}
+
+/* Main container */
+.main-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Map */
 #map {
     flex: 1;
-    height: 100%; /* Take up the entire height of the main block */
+    height: 100%;
 }
 
+/* Info Container */
 #info-container {
-    flex: 0 0 15%;
-    width: 15%; /* Info block width (15% of page width) */
+    width: 15%;
+    background-color: white;
     display: flex;
     flex-direction: column;
 }
 
+/* Marker Info */
 #marker-info {
     flex: 0 0 60%;
     background-color: rgba(255, 255, 255, 0.8);
     padding: 10px;
     overflow-y: auto;
+    margin-bottom: 10px;
 }
 
+/* Activity Filter */
 #activity-filter {
     flex: 0 0 40%;
     background-color: rgba(255, 255, 255, 0.8);
@@ -43,3 +75,14 @@ body {
     flex-direction: column;
     align-items: flex-start;
 }
+
+/* Footer */
+.footer {
+    background-color: white; /* Изменили цвет фона на белый */
+    color: black; /* Изменили цвет текста на черный */
+    padding: 35px;
+    text-align: center;
+    border-top: 1px solid black; /* Добавили верхнюю рамку */
+    margin-top: auto; /* Подталкивает футер вниз, чтобы он был внизу страницы */
+}
+
