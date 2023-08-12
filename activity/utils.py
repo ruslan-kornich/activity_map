@@ -2,7 +2,7 @@ import math
 from collections import defaultdict
 import copy
 
-OFFSET_STEP = 0.0003
+OFFSET_STEP = 0.001
 
 
 def group_markers_by_coordinates_and_activity(markers):

@@ -8,34 +8,35 @@
 body {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh; /* Use min-height instead of height */
     font-family: Arial, sans-serif;
     background-color: #f2f2f2;
 }
 
-/* Navbar */
 .navbar {
     background-color: black;
     color: white;
-    padding: 25px;
-    text-align: center;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .navbar h1 {
     margin: 0;
 }
 
-/* Main container */
 .main-container {
     display: flex;
-    flex: 1;
+    flex: 1; /* Allows this block to take up all available space between the navbar and footer */
     overflow: hidden;
 }
 
-/* Map */
+
 #map {
     flex: 1;
-    height: 100%;
+    border-right: 3px solid #ddd;
+    margin-right: 10px;
 }
 
 /* Info Container */
@@ -46,20 +47,29 @@ body {
     flex-direction: column;
 }
 
-/* Marker Info */
 #marker-info {
     flex: 0 0 60%;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 10px;
     overflow-y: auto;
-    margin-bottom: 10px;
+    padding: 10px;
+    border-bottom: 3px solid #ddd;  /* add a border at the bottom */
+    margin-bottom: 10px;  /* add indentation at the bottom */
 }
+
+
+#activity-filter {
+    flex: 0 0 40%;
+    padding: 10px;
+}
+
 
 /* Activity Filter */
 #activity-filter {
     flex: 0 0 40%;
     background-color: rgba(255, 255, 255, 0.8);
     padding: 10px;
+    border-top: 3px solid #ddd;  /* add a frame on top */
+    border-left: 3px solid #ddd;  /* add a frame on the left */
+    border-right: 3px solid #ddd;  /* add a frame on the right side */
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -69,7 +79,7 @@ body {
 #activity-filter h3 {
     margin-bottom: 5px;
 }
-
+/* add a frame on top */
 #activity-checkboxes {
     display: flex;
     flex-direction: column;
@@ -78,11 +88,23 @@ body {
 
 /* Footer */
 .footer {
-    background-color: white; /* Изменили цвет фона на белый */
-    color: black; /* Изменили цвет текста на черный */
+    background-color: white;
+    color: black;
     padding: 35px;
     text-align: center;
-    border-top: 1px solid black; /* Добавили верхнюю рамку */
-    margin-top: auto; /* Подталкивает футер вниз, чтобы он был внизу страницы */
+    border-top: 1px solid black;
+    margin-top: auto;
 }
 
+.marker-message {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 80%;
+}
+h3 {
+    text-align: center;
+}

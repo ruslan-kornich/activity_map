@@ -70,7 +70,6 @@ function fetchActivities() {
 
 
 
-
 function fetchMarkers(minLat, maxLat, minLng, maxLng) {
     const url = `/api/markers/?minLat=${minLat}&maxLat=${maxLat}&minLng=${minLng}&maxLng=${maxLng}`;
     fetch(url)
@@ -92,9 +91,7 @@ function fetchMarkers(minLat, maxLat, minLng, maxLng) {
                 marker.activityName = markerData.activity.name; // Add activity name
                 marker.placeName = markerData.place; // Add the name of the place
                 const popupContent = `
-                    <h4>${markerData.activity.name}</h4>
-                    <p>Quantity: ${markerData.quantity}</p>
-                    <p>Date: ${markerData.date}</p>
+                    <h3>${markerData.activity.name}</h3>
                     <p>Place: ${markerData.place}</p>
                 `;
                 marker.bindPopup(popupContent);
@@ -158,17 +155,27 @@ function fetchActivitiesForPlace(placeName, activityName) {
             // Reset the previous content of the list
             $('#marker-list').empty();
 
+            // Create a new container for messages
+            const messagesContainer = $('<div></div>');
+
             // Iterate over all items received from API
             data.forEach(item => {
-                $('#marker-list').append(`<li><strong>Activity:</strong> ${item.activity.name}</li>`);
-                $('#marker-list').append(`<li><strong>Quantity:</strong> ${item.quantity}</li>`);
-                $('#marker-list').append(`<li><strong>Place:</strong> ${item.place}</li>`);
-                $('#marker-list').append(`<li><strong>Date:</strong> ${item.date}</li>`);
-                $('#marker-list').append('<hr>');  // Separator between records
-            });
+            const message = `
+                            <div class="marker-message">
+                            <div><strong>Activity:</strong> ${item.activity.name}</div>
+                            <div><strong>Quantity:</strong> ${item.quantity}</div>
+                            <div><strong>Place:</strong> ${item.place}</div>
+                            <div><strong>Date:</strong> ${item.date}</div>
+                         </div>
+                            `;
+    messagesContainer.append(message);
+});
+            // Append the messages container to the list
+            $('#marker-list').append(messagesContainer);
         })
         .catch(error => console.error("There was a problem fetching activities for place:", error));
 }
+
 
 
 function loadMarkersBasedOnFilters() {
