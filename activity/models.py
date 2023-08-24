@@ -4,9 +4,10 @@ ACTIVITY_ICONS = {
     "Bread Distribution": "fa-bread-slice",
     "Water distribution": "fa-tint",
     "Food Distribution": "fa-utensils",
-    "Non-Food Items (NFI)": "fa-shopping-bag",
-    "Evacuation": "fa-hiking",
+    "Non-Food Items (NFI)": "bag-shopping",
+    "Evacuation": "truck-fast",
     "Restoration of a damaged home": "fa-hammer",
+    "Hygiene": "hands-bubbles",
 }
 
 ACTIVITY_COLORS = {
@@ -16,6 +17,7 @@ ACTIVITY_COLORS = {
     "Non-Food Items (NFI)": "purple",
     "Evacuation": "orange",
     "Restoration of a damaged home": "darkred",
+    "Hygiene": "gray",
 }
 
 
@@ -39,6 +41,7 @@ class Activity(models.Model):
 class Marker(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
     quantity = models.IntegerField()
+    beneficiary = models.IntegerField()
     date = models.DateField()
     place = models.CharField(max_length=100)
     location = models.PointField()  # Using PointField to store geographical data

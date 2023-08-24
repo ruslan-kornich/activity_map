@@ -15,7 +15,7 @@ class MarkerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Marker
-        fields = ("id", "activity", "quantity", "date", "place", "lat", "lng")
+        fields = ("id", "activity", "quantity", "beneficiary", "date", "place", "lat", "lng")
 
     def get_lat(self, obj):
         return obj.location.y

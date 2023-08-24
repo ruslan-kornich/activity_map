@@ -6,8 +6,8 @@ const map = L.map('map', {
     center: [48.459801, 35.009273],
     zoom: 11,
     layers: [cartoLayer], // Only the CARTO layer
-    minZoom: 7,
-    maxZoom: 18,
+    minZoom: 9,
+    maxZoom: 13,
     zoomControl: false // Disable standard proximity/remote buttons
 });
 
@@ -15,6 +15,39 @@ L.control.zoom({
      position: 'bottomright'
 }).addTo(map);
 
+fetch('https://deepstatemap.live/api/history/1687169321/geojson')
+  .then(function (response) {
+    if (response.ok) {
+      return response.json();
+    } else {
+      throw new Error('Ошибка загрузки полигонов');
+    }
+  })
+  .then(function (data) {
+    // Filter the data to display only polygons
+    const polygons = data.features.filter(feature => feature.geometry.type !== 'Point');
+
+    // Create a new GeoJSON object with polygons only
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: polygons
+    };
+
+    L.geoJSON(geoJsonData, {
+      style: function (feature) {
+        return {
+          color: feature.properties.stroke,
+          fillColor: feature.properties.fill,
+          weight: feature.properties['stroke-width'],
+          fillOpacity: feature.properties['fill-opacity']
+        };
+      }
+
+    }).addTo(map);
+  })
+  .catch(function (error) {
+    console.error(error);
+  });
 
 
 let currentMarkers = [];
@@ -91,7 +124,7 @@ function fetchMarkers(minLat, maxLat, minLng, maxLng) {
                 marker.activityName = markerData.activity.name; // Add activity name
                 marker.placeName = markerData.place; // Add the name of the place
                 const popupContent = `
-                    <h3>${markerData.activity.name}</h3>
+                    <h3>Activity: ${markerData.activity.name}</h3>
                     <p>Place: ${markerData.place}</p>
                 `;
                 marker.bindPopup(popupContent);
@@ -162,9 +195,10 @@ function fetchActivitiesForPlace(placeName, activityName) {
             data.forEach(item => {
             const message = `
                             <div class="marker-message">
+                            <div><strong>Place:</strong> ${item.place}</div>
                             <div><strong>Activity:</strong> ${item.activity.name}</div>
                             <div><strong>Quantity:</strong> ${item.quantity}</div>
-                            <div><strong>Place:</strong> ${item.place}</div>
+                            <div><strong>Beneficiary:</strong> ${item.beneficiary}</div>
                             <div><strong>Date:</strong> ${item.date}</div>
                          </div>
                             `;
